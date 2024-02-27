@@ -19,7 +19,7 @@ private String state;
                 ", 订餐人='" + uname + '\'' +
                 ", 菜名='" + mname + '\'' +
                 ", 价格=" + price +
-                ", 状态='" + state + '\'' +
+                ", 状态.='" + state + '\'' +
                 '}';
     }
 

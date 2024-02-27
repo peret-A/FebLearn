@@ -68,27 +68,28 @@ public static void mainMenu(){
             }
         }
 
+        int size = size();
         //定义sql
-        String sql1 ="insert into order values("+user.getId()
-                +",'"+user.getRoot()+"','"+user.getPwd()+"','"+user.getUname()+"','"+user.getGender()
-                +"',"+user.getAge()+",'"+user.getAddress()+"')";
-
+        String sql1 ="insert into `order` values("+(size+1)
+                +",'"+user.getUname()+"','"+mealArrayList.get(id-1).getMname()+"',"+
+                mealArrayList.get(id-1).getPrice()+",'已预订')";
         //执行sql
         sta.executeUpdate(sql1);
-        //关闭资源
+//        关闭资源
         set.close();
         sta.close();
         conn.close();
 
     }
-    public static int check() throws SQLException {
+    public static void check() throws SQLException {
         System.out.println("---------- 查看订单 -----------");
+        size();
         String url="jdbc:mysql:///db_mylearn";
         String root="root";
         String pwd="123456";
         Connection conn = DriverManager.getConnection(url,root,pwd);
         //2.定义sql
-        String sql = "select * from order";
+        String sql = "select * from `order`";
         //执行sql
         Statement sta = conn.prepareStatement(sql);
         //获取结果集
@@ -107,20 +108,44 @@ public static void mainMenu(){
         for(Order order:orderArrayList){
             System.out.println(order);
         }
+    }
+
+    public static int size() throws SQLException {
+        String url="jdbc:mysql:///db_mylearn";
+        String root="root";
+        String pwd="123456";
+        Connection conn = DriverManager.getConnection(url,root,pwd);
+        //2.定义sql
+        String sql = "select * from `order`";
+        //执行sql
+        Statement sta = conn.prepareStatement(sql);
+        //获取结果集
+        ResultSet res = sta.executeQuery(sql);
+        ArrayList<Order> orderArrayList = new ArrayList<>();
+        while (res.next()){
+            Order order =new Order();
+            order.setId(res.getInt("id"));
+            order.setUname(res.getString("uname"));
+            order.setMname(res.getString("mname"));
+            order.setPrice(res.getDouble("price"));
+            order.setState(res.getString("state"));
+            orderArrayList.add(order);
+        }
+        for(int i=1;i<= orderArrayList.size();i++){
+            //2.定义sql
+            String sql1 = "update `order` set id = "+i+" where uname = '"+orderArrayList.get(i-1).getUname()+"'";
+            sta.executeUpdate(sql1);
+        }
         return orderArrayList.size();
     }
-
-    public static void dele(){
-
-    }
-
-    public static void sign() throws SQLException {
-        int size = check();
+    public static void dele() throws SQLException {
+        int size = size();
+        check();
         //创建scanner对象
         Scanner scanner =new Scanner(System.in);
-        System.out.print("请输入要订餐的序号: ");
         int id=0;
         while (true){
+            System.out.print("请输入要订餐的序号: ");
             id= scanner.nextInt();
             if(id>0&&id<=size){
                 break;
@@ -132,14 +157,66 @@ public static void mainMenu(){
         String pwd="123456";
         Connection conn = DriverManager.getConnection(url,root,pwd);
         //2.定义sql
-        String sql = "update  order set state='已完成' where id ="+id+"";
+        String sql = "delete from `order` where id ="+id+"";
         //执行sql
         Statement sta = conn.prepareStatement(sql);
         sta.executeUpdate(sql);
     }
 
-    public static void like(){
+    public static void sign() throws SQLException {
+        int size =size();
+        check();
+        //创建scanner对象
+        Scanner scanner =new Scanner(System.in);
+        int id=0;
+        while (true){
+            System.out.print("请输入要订餐的序号: ");
+            id= scanner.nextInt();
+            if(id>0&&id<=size){
+                break;
+            }
+        }
 
+        String url="jdbc:mysql:///db_mylearn";
+        String root="root";
+        String pwd="123456";
+        Connection conn = DriverManager.getConnection(url,root,pwd);
+        //2.定义sql
+        String sql = "update  `order` set state='已完成' where id ="+id+"";
+        //执行sql
+        Statement sta = conn.prepareStatement(sql);
+        sta.executeUpdate(sql);
+    }
+
+    public static void like() throws SQLException {
+        int size =size();
+        check();
+        //创建scanner对象
+        Scanner scanner =new Scanner(System.in);
+        int id=0;
+        while (true){
+            System.out.print("请输入要订单的序号: ");
+            id= scanner.nextInt();
+            if(id>0&&id<=size){
+                break;
+            }
+        }
+
+        String url="jdbc:mysql:///db_mylearn";
+        String root="root";
+        String pwd="123456";
+        Connection conn = DriverManager.getConnection(url,root,pwd);
+        //2.定义sql
+        String sql = "select mname from `order` where id ="+id+"";
+        //执行sql
+        Statement sta = conn.prepareStatement(sql);
+        ResultSet resultSet = sta.executeQuery(sql);
+        String mname = resultSet.getString("mname");
+        String sql1 ="select likes from meal where mname = "+mname+"";
+        ResultSet resultSet1 =sta.executeQuery(sql1);
+        int likes =resultSet1.getInt("likes");
+        String sql2 ="update `order` set likes = "+(likes+1)+"";
+        sta.executeUpdate(sql2);
     }
 
     public static User verify() throws SQLException {
