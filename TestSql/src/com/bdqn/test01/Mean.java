@@ -89,9 +89,9 @@ public static void mainMenu(){
         String pwd="123456";
         Connection conn = DriverManager.getConnection(url,root,pwd);
         //2.定义sql
-        String sql = "select * from `order`";
+        String sql = "select * from `order` order by id ";
         //执行sql
-        Statement sta = conn.prepareStatement(sql);
+        Statement sta = conn.createStatement();
         //获取结果集
         ResultSet res = sta.executeQuery(sql);
         ArrayList<Order> orderArrayList = new ArrayList<>();
@@ -118,7 +118,7 @@ public static void mainMenu(){
         //2.定义sql
         String sql = "select * from `order`";
         //执行sql
-        Statement sta = conn.prepareStatement(sql);
+        Statement sta = conn.createStatement();
         //获取结果集
         ResultSet res = sta.executeQuery(sql);
         ArrayList<Order> orderArrayList = new ArrayList<>();
@@ -133,7 +133,7 @@ public static void mainMenu(){
         }
         for(int i=1;i<= orderArrayList.size();i++){
             //2.定义sql
-            String sql1 = "update `order` set id = "+i+" where uname = '"+orderArrayList.get(i-1).getUname()+"'";
+            String sql1 = "update `order` set id = "+i+" where id = "+orderArrayList.get(i-1).getId()+" limit 1";
             sta.executeUpdate(sql1);
         }
         return orderArrayList.size();
@@ -159,7 +159,7 @@ public static void mainMenu(){
         //2.定义sql
         String sql = "delete from `order` where id ="+id+"";
         //执行sql
-        Statement sta = conn.prepareStatement(sql);
+        Statement sta = conn.createStatement();
         sta.executeUpdate(sql);
     }
 
@@ -184,7 +184,7 @@ public static void mainMenu(){
         //2.定义sql
         String sql = "update  `order` set state='已完成' where id ="+id+"";
         //执行sql
-        Statement sta = conn.prepareStatement(sql);
+        Statement sta = conn.createStatement();
         sta.executeUpdate(sql);
     }
 
@@ -207,16 +207,11 @@ public static void mainMenu(){
         String pwd="123456";
         Connection conn = DriverManager.getConnection(url,root,pwd);
         //2.定义sql
-        String sql = "select mname from `order` where id ="+id+"";
+        String sql = "UPDATE meal SET likes = likes+1 WHERE mname = (SELECT mname FROM `order` WHERE id = "+id+");";
         //执行sql
-        Statement sta = conn.prepareStatement(sql);
-        ResultSet resultSet = sta.executeQuery(sql);
-        String mname = resultSet.getString("mname");
-        String sql1 ="select likes from meal where mname = "+mname+"";
-        ResultSet resultSet1 =sta.executeQuery(sql1);
-        int likes =resultSet1.getInt("likes");
-        String sql2 ="update `order` set likes = "+(likes+1)+"";
-        sta.executeUpdate(sql2);
+        Statement sta = conn.createStatement();
+        sta.executeUpdate(sql);
+
     }
 
     public static User verify() throws SQLException {
